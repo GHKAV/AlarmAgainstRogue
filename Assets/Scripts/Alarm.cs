@@ -1,14 +1,16 @@
 using System.Collections;
 using UnityEngine;
 
+[RequireComponent(typeof(AudioSource))]
+[RequireComponent(typeof(SigmalingZone))]
+
 public class Alarm : MonoBehaviour
 {
-    [SerializeField]private float _timeIncrease;
+    [SerializeField] private float _timeIncrease;
 
     private SigmalingZone _sigmalingZone;
     private AudioSource _audioSource;
-
-    private float _targetVolume;
+    private Coroutine _changeVolumeCoroutine;
 
     private void OnEnable()
     {
@@ -24,23 +26,19 @@ public class Alarm : MonoBehaviour
 
     private void StartCoroutineChangeVolume()
     {
-        if (_sigmalingZone.IsReached)
+        if (_changeVolumeCoroutine != null)
         {
-            _targetVolume = 1;
-            StartCoroutine(ChangeVolume());
+            StopCoroutine(_changeVolumeCoroutine);
         }
-        else
-        {
-            _targetVolume = 0;
-            StartCoroutine(ChangeVolume());
-        }
+
+        _changeVolumeCoroutine = StartCoroutine(ChangeVolume());
     }
 
     private IEnumerator ChangeVolume()
     {
-        while (_audioSource.volume != _targetVolume)
+        while (_audioSource.volume != _sigmalingZone.IsReached)
         {
-            _audioSource.volume = Mathf.MoveTowards(_audioSource.volume, _targetVolume, _timeIncrease * Time.deltaTime);
+            _audioSource.volume = Mathf.MoveTowards(_audioSource.volume, _sigmalingZone.IsReached, _timeIncrease * Time.deltaTime);
             yield return null;
         }
     }
