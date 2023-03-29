@@ -36,9 +36,11 @@ public class Alarm : MonoBehaviour
 
     private IEnumerator ChangeVolume()
     {
-        while (_audioSource.volume != _sigmalingZone.IsReached)
+        int TargetVolume = _sigmalingZone.IsReached;
+
+        while (_audioSource.volume != TargetVolume)
         {
-            _audioSource.volume = Mathf.MoveTowards(_audioSource.volume, _sigmalingZone.IsReached, _timeIncrease * Time.deltaTime);
+            _audioSource.volume = Mathf.MoveTowards(_audioSource.volume, TargetVolume, _timeIncrease * Time.deltaTime);
             yield return null;
         }
     }
